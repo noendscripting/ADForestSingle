@@ -1,0 +1,274 @@
+﻿{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+  "parameters": {
+    "VirtualMachinename": {
+      "type": "string"
+      },
+    "AdminUserName": {
+      "type": "string"
+    },
+    "AdminPassword": {
+      "type": "securestring"
+    },
+    "VirtualNetworkName": {
+      "type": "string"
+    },
+    "virtualMachineSize": {
+      "type": "string"
+    },
+    "WindowsOSVersion": {
+      "type": "string"
+    },
+    "subnetName": {
+      "type": "string"
+    },
+    "virtualNetResourceGroupName": {
+      "type": "string"
+    },
+    "_artifactsLocation": {
+      "type": "string",
+      "metadata": {
+        "description": "Auto-generated container in staging storage account to receive post-build staging folder upload"
+      }
+    },
+    "_artifactsLocationSasToken": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Auto-generated token to access _artifactsLocation"
+      }
+    },
+    "DSCArchiveFileName": {
+      "type": "string"
+    },
+    "domainName": {
+      "type": "string"
+    },
+    "NetBiosDomainname": {
+      "type": "string"
+    },
+    "shutdownTimeZone": {
+      "type": "string",
+      "defaultValue": "Eastern Standard Time"
+    },
+    "shutdownTime": {
+      "type": "string",
+      "defaultValue": "23:00"
+    },
+    "addUsers": {
+      "type": "bool",
+      "defaultValue": true
+    }
+  },
+
+  "variables": {
+    "VnetID": "[resourceId(parameters('virtualNetResourceGroupName'),'Microsoft.Network/virtualNetworks', parameters('virtualNetworkname'))]",
+    "subnetRef": "[concat(variables('vnetId'), '/subnets/', parameters('subnetName'))]",
+    "ImagePublisher": "MicrosoftWindowsServer",
+    "ImageOffer": "WindowsServer",
+    "DscConfigurationScript": "DCConfig.ps1",
+    "DscConfigurationFunction": "DcConfig",
+    "DscArchiveFileUri":"[concat(parameters('_artifactsLocation'),'/',parameters('DSCArchiveFileName'))]",
+    "CustomDCScriptScriptFileName":"CustomScript.ps1",
+    "CustomScriptScriptFolder": "CustomScripts",
+    "CustomScriptURis": [
+            "[concat(parameters('_artifactsLocation'),'/', variables('CustomScriptScriptFolder'), '/', variables('CustomDCScriptScriptFileName'), parameters('_artifactsLocationSasToken'))]",
+            "[concat(parameters('_artifactsLocation'),'/', variables('CustomScriptScriptFolder'), '/Users.csv', parameters('_artifactsLocationSasToken'))]",
+            "[concat(parameters('_artifactsLocation'),'/', variables('CustomScriptScriptFolder'), '/Groups.csv', parameters('_artifactsLocationSasToken'))]",
+            "[concat(parameters('_artifactsLocation'),'/', variables('CustomScriptScriptFolder'), '/OUs.csv', parameters('_artifactsLocationSasToken'))]",
+            "[concat(parameters('_artifactsLocation'),'/', variables('CustomScriptScriptFolder'), '/Members.csv', parameters('_artifactsLocationSasToken'))]"
+          ]
+
+  },
+  "resources": [
+    //DC NIC
+    {
+      "comments": "# DC NIC",
+      "name": "[concat(parameters('VirtualMachinename'),'NIC')]",
+      "type": "Microsoft.Network/networkInterfaces",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "DC NIC"
+      },
+      "apiVersion": "2015-06-15",
+      "dependsOn": [
+      ],
+
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('subnetRef')]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    
+     // DC VM - VM promoted as Domain Controller, Enterprise Root CA is installed
+    {
+      "comments": "# DC VM",
+      "name": "[parameters('VirtualMachinename')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2019-03-01",
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkInterfaces/', parameters('VirtualMachinename'),'NIC')]"
+      ],
+      "tags": {
+        "displayName": "DC"
+      },
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[parameters('virtualMachineSize')]"
+        },
+        "osProfile": {
+          "computerName": "[parameters('VirtualMachinename')]",
+          "adminUsername": "[parameters('AdminUsername')]",
+          "adminPassword": "[parameters('AdminPassword')]",
+          "windowsConfiguration": {
+            "timeZone": "[parameters('shutdownTimeZone')]",
+            "winRM": {
+              "listeners": [
+                {
+                  "protocol": "Http"
+                }
+              ]
+            }
+          }
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[variables('ImagePublisher')]",
+            "offer": "[variables('ImageOffer')]",
+            "sku": "[parameters('WindowsOSVersion')]",
+            "version": "latest"
+          },
+          "osDisk": {
+            "createOption": "FromImage",
+            "caching": "ReadWrite"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(parameters('VirtualMachinename'),'NIC'))]"
+            }
+          ]
+        }
+      },
+      "resources": [
+      ]
+        },
+        {
+          "name": "[concat(parameters('VirtualMachinename'),'/',parameters('NetBiosDomainname'),'-DSC-ForestBuild')]",
+          "type": "Microsoft.Compute/virtualMachines/extensions",
+          "apiVersion": "2019-03-01",
+
+          "location": "[resourceGroup().location]",
+          "tags": {
+            "DisplayName": "DC-DCS"
+          },
+          "dependsOn": [
+            "[resourceId('Microsoft.Compute/virtualMachines',parameters('VirtualMachinename'))]"
+          ],
+          "properties": {
+            "publisher": "Microsoft.Powershell",
+            "type": "DSC",
+            "typeHandlerVersion": "2.26",
+            "autoUpgradeMinorVersion": true,
+            "settings": {
+              "wmfVersion": "latest",
+
+              "configuration": {
+                "script": "[variables('DscConfigurationScript')]",
+                "url": "[variables('DscArchiveFileUri')]",
+                "function": "[variables('DscConfigurationFunction')]"
+
+              },
+              "configurationArguments": {
+                "domainName": "[parameters('domainName')]",
+                "NetBiosDomainname": "[parameters('NetBiosDomainname')]"
+
+              }
+            },
+            "protectedSettings": {
+              "configurationUrlSasToken": "[parameters('_artifactsLocationSasToken')]",
+              "configurationArguments": {
+                "DomainAdminCredentials": {
+                  "UserName": "[parameters('AdminUserName')]",
+                  "Password": "[parameters('AdminPassword')]"
+                }
+              }
+            }
+          }
+           
+      },
+
+        // DC Import Custom Script
+    {
+      "name": "[concat(parameters('VirtualMachinename'),'/',parameters('NetBiosDomainname'),'-DC-ImportScript')]",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-03-30",
+      "condition":"[equals(parameters('addUsers'),true())]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Compute/virtualMachines/extensions',parameters('VirtualMachinename'),concat(parameters('NetBiosDomainname'),'-DSC-ForestBuild'))]"
+      ],
+      "tags": {
+        "displayName": "DCImportScript"
+      },
+      "properties": {
+        "publisher": "Microsoft.Compute",
+        "type": "CustomScriptExtension",
+        "typeHandlerVersion": "1.4",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "fileUris": "[variables('CustomScriptURis')]"
+        },
+        "protectedSettings": {
+          "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File ', variables('CustomScriptScriptFolder'), '/', variables('CustomDCScriptScriptFileName'))]"
+        }
+      }
+      
+    },
+    //Shutdown Schedule
+    {
+      "apiVersion": "2018-09-15",
+      "Type": "Microsoft.DevTestLab/schedules",
+      "name": "[concat('shutdown-computevm-',parameters('VirtualMachinename'))]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Compute/virtualMachines',parameters('VirtualMachinename'))]"
+        
+      ],
+      "tags": {
+        "displayName": "VMShutdown-Schedule"
+      },
+      "properties": {
+        "status": "Enabled",
+        "timeZoneId": "[parameters('shutdownTimeZone')]",
+        "taskType": "ComputeVmShutdownTask",
+        "notificationSettings": {
+          "status": "Disabled",
+          "timeInMinutes": 15,
+          "webhookUrl": null
+        },
+        "targetResourceId": "[resourceId('Microsoft.Compute/virtualMachines', parameters('VirtualMachinename'))]",
+        "dailyRecurrence": {
+          "time": "[parameters('shutdownTime')]"
+        }
+      }
+
+    }
+     
+    
+
+  ],
+    "outputs": {
+    }
+}
