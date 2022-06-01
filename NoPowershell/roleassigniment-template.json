@@ -2,10 +2,10 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters":{
-        "idName": {
+        "principalId": {
             "type": "string"
         },
-        "principalId": {
+        "VNETName": {
             "type": "string"
         }
     },
@@ -26,7 +26,7 @@
         "roleDefinitionId": "[variables('contributorRoleDefinitionId')]",
         //"principalId": "[reference(resourceId('DomainControlerTest-RG','Microsoft.Authorization/roleAssignments', parameters('idName')), '2018-11-30').principalId]",
         "principalId": "[parameters('principalId')]",
-        "scope": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkname'))]",
+        "scope": "[resourceId('Microsoft.Network/virtualNetworks', parameters('VNETName'))]",
         //"scope" : "/subscriptions/a659182b-c925-4e27-a56d-f40be3f61562",
         "principalType": "ServicePrincipal"
       }

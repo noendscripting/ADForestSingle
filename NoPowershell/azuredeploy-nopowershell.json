@@ -113,8 +113,8 @@
           "uri": "[parameters('roleAssignimentTemplateURI')]"
         },
         "parameters":{
-          "idName":{
-          "value":"[parameters('identityName')]"
+          "VNETName":{
+          "value":"[parameters('VirtualNetworkName')]"
           },
           "principalId":{
             "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('identityName')), '2018-11-30').principalId]"
