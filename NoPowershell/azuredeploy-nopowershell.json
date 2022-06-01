@@ -63,7 +63,16 @@
 
       "type": "string",
       "defaultValue": "https://raw.githubusercontent.com/noendscripting/ADForestSingle/master/NoPowershell/roleassigniment-template.json"
+    },
+    "DscArchiveFileUri":{
+      "type": "string",
+      "defaultValue": "https://github.com/noendscripting/ADForestSingle/blob/f35014cbddd4dfac2b86906290b861251e7bb49f/DSC/DCConfig.zip"
+    },
+    "CustomScriptUri" : {
+      "type": "string",
+      "defaultValue": "https://raw.githubusercontent.com/noendscripting/ADForestSingle/master/CustomScripts"
     }
+    
   },
 
 
@@ -79,11 +88,11 @@
     "CustomDCScriptScriptFileName": "CustomScript.ps1",
     "CustomScriptScriptFolder": "CustomScripts",
     "CustomScriptURis": [
-      "[concat(parameters('_artifactsLocation'),'/', variables('CustomScriptScriptFolder'), '/', variables('CustomDCScriptScriptFileName'), parameters('_artifactsLocationSasToken'))]",
-      "[concat(parameters('_artifactsLocation'),'/', variables('CustomScriptScriptFolder'), '/Users.csv', parameters('_artifactsLocationSasToken'))]",
-      "[concat(parameters('_artifactsLocation'),'/', variables('CustomScriptScriptFolder'), '/Groups.csv', parameters('_artifactsLocationSasToken'))]",
-      "[concat(parameters('_artifactsLocation'),'/', variables('CustomScriptScriptFolder'), '/OUs.csv', parameters('_artifactsLocationSasToken'))]",
-      "[concat(parameters('_artifactsLocation'),'/', variables('CustomScriptScriptFolder'), '/Members.csv', parameters('_artifactsLocationSasToken'))]"
+      "[concat(parameters('CustomScriptURi'),'/', variables('CustomScriptScriptFolder'), '/', variables('CustomDCScriptScriptFileName'))]",
+      "[concat(parameters('CustomScriptURi'),'/', variables('CustomScriptScriptFolder'), '/Users.csv')]",
+      "[concat(parameters('CustomScriptURi'),'/', variables('CustomScriptScriptFolder'), '/Groups.csv')]",
+      "[concat(parameters('CustomScriptURi'),'/', variables('CustomScriptScriptFolder'), '/OUs.csv')]",
+      "[concat(parameters('CustomScriptURi'),'/', variables('CustomScriptScriptFolder'), '/Members.csv')]"
     ]
 
   },
@@ -255,7 +264,7 @@
 
           "configuration": {
             "script": "[variables('DscConfigurationScript')]",
-            "url": "[variables('DscArchiveFileUri')]",
+            "url": "[parameters('DscArchiveFileUri')]",
             "function": "[variables('DscConfigurationFunction')]"
 
           },
@@ -328,41 +337,12 @@
         "azPowerShellVersion": "5.0",
         "timeout": "PT30M",
         "arguments": "[format(' -resourceGroup {0} -vnetName {1} -dcName {2} -vNetResourceGroupName {3}', resourceGroup().name, parameters('virtualNetworkName'),parameters('VirtualMachinename'), parameters('virtualNetResourceGroupName'))]", // can pass an arguement string, double quotes must be escaped
-        "primaryScriptUri": "[concat(parameters('_artifactsLocation'),'/', variables('CustomScriptScriptFolder'), '/set-customdns.ps1', parameters('_artifactsLocationSasToken'))]",
+        "primaryScriptUri": "[concat(parameters('CustomScriptUri'),'/', variables('CustomScriptScriptFolder'), '/set-customdns.ps1')]",
         "cleanupPreference": "Always",
         "retentionInterval": "P1D"
       }
-    } /*,
-    //Shutdown Schedule
-    {
-      "apiVersion": "2018-09-15",
-      "Type": "Microsoft.DevTestLab/schedules",
-      "name": "[concat('shutdown-computevm-',parameters('VirtualMachinename'))]",
-      "location": "[resourceGroup().location]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Compute/virtualMachines',parameters('VirtualMachinename'))]"
-        
-      ],
-      "tags": {
-        "displayName": "VMShutdown-Schedule"
-      },
-      "properties": {
-        "status": "Enabled",
-        "timeZoneId": "[parameters('shutdownTimeZone')]",
-        "taskType": "ComputeVmShutdownTask",
-        "notificationSettings": {
-          "status": "Disabled",
-          "timeInMinutes": 15,
-          "webhookUrl": null
-        },
-        "targetResourceId": "[resourceId('Microsoft.Compute/virtualMachines', parameters('VirtualMachinename'))]",
-        "dailyRecurrence": {
-          "time": "[parameters('shutdownTime')]"
-        }
-      }
-
-
-    }*/
+    } 
+    
 
 
 
