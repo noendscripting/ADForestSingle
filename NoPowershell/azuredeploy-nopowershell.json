@@ -100,7 +100,32 @@
     },
     //Assign Network Contributor Role to Managed Identity
     {
-      "name": "[variables('roleDeploymentName')]",
+      "name": "[concat(variables('roleDeploymentName'),'networkRG')]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2017-05-10",
+      "dependsOn": [
+        "[resourceId(resourceGroup().name,'Microsoft.ManagedIdentity/userAssignedIdentities', parameters('identityName'))]"
+      ], 
+     "resourceGroup": "[resourceGroup().name]",
+      "properties": {
+        "mode":"Incremental",
+        "templateLink":{
+          "uri": "[parameters('roleAssignimentTemplateURI')]"
+        },
+        "parameters":{
+          "roleDefenitionId":{
+          "value":"4d97b98b-1d4f-4787-a291-c67834d212e7"
+          },
+          "principalId":{
+            "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('identityName')), '2018-11-30').principalId]"
+          }
+        }
+      }
+    }
+    ,
+    //Assign Virtual Machine Contributor Role to Managed Identity
+    {
+      "name": "[concat(variables('roleDeploymentName'),'DCRG')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2017-05-10",
       "dependsOn": [
@@ -113,8 +138,8 @@
           "uri": "[parameters('roleAssignimentTemplateURI')]"
         },
         "parameters":{
-          "VNETName":{
-          "value":"[parameters('VirtualNetworkName')]"
+          "roleDefenitionId":{
+          "value":"9980e02c-c2be-4d73-94e8-173b1dc7cf3c"
           },
           "principalId":{
             "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('identityName')), '2018-11-30').principalId]"

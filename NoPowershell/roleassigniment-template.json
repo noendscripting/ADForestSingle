@@ -5,13 +5,13 @@
         "principalId": {
             "type": "string"
         },
-        "VNETName": {
+        "roleDefenitionId": {
             "type": "string"
         }
     },
     "variables" : {
         "bootstrapRoleAssignmentId": "[guid(concat(resourceGroup().id, 'networkContributor'))]",
-        "contributorRoleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '4d97b98b-1d4f-4787-a291-c67834d212e7')]"
+        "builitInRoleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('roleDefenitionId'))]"
     },
     "resources":[
 
@@ -23,10 +23,8 @@
         "displayName":"AssignPremisions"
       },
       "properties": {
-        "roleDefinitionId": "[variables('contributorRoleDefinitionId')]",
-        //"principalId": "[reference(resourceId('DomainControlerTest-RG','Microsoft.Authorization/roleAssignments', parameters('idName')), '2018-11-30').principalId]",
+        "roleDefinitionId": "[variables('builitInRoleDefinitionId')]",
         "principalId": "[parameters('principalId')]",
-        //"scope": "[resourceId('Microsoft.Network/virtualNetworks', parameters('VNETName'))]",
         "scope" : "[resourceGroup().id]",
         "principalType": "ServicePrincipal"
       }
