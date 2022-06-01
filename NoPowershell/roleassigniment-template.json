@@ -26,8 +26,8 @@
         "roleDefinitionId": "[variables('contributorRoleDefinitionId')]",
         //"principalId": "[reference(resourceId('DomainControlerTest-RG','Microsoft.Authorization/roleAssignments', parameters('idName')), '2018-11-30').principalId]",
         "principalId": "[parameters('principalId')]",
-        //"scope": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkname'))]",
-        "scope" : "/subscriptions/a659182b-c925-4e27-a56d-f40be3f61562",
+        "scope": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkname'))]",
+        //"scope" : "/subscriptions/a659182b-c925-4e27-a56d-f40be3f61562",
         "principalType": "ServicePrincipal"
       }
     }
