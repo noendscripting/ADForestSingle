@@ -21,10 +21,10 @@ Param(
   [string]$WindowsOSVersion = "2016-Datacenter",
   [string]$AdminUserName = "mtadmin",
   [string]$AdminPassword = "Test@2017",
-  [string]$VirtualNetworkName ="VNET-LAB",
+  [string]$VirtualNetworkName ,
   [string]$virtualMachineSize= 'Standard_B2s',
-  [string]$subnetName = "MainSubnet",
-  [string]$virtualNetResourceGroupName = "vnet-rg",
+  [string]$subnetName ,
+  [string]$virtualNetResourceGroupName,
   [string]$domainName = "contosoad.com",
   [string]$NetBiosDomainname = "contosoad",
   [bool]$addUsers = $true
@@ -67,12 +67,12 @@ Get-ChildItem .\CustomScripts | ForEach-Object {
   Set-AzStorageBlobContent -File $_.FullName -Blob $_.FullName.Substring((Get-Item $PSScriptRoot).FullName.Length + 1) -Context $destcontext -Container $containerName -Force | Out-Null
 
 }
-$templatefile = '.\azuredeploy.json'
+#$templatefile = '.\azuredeploy.json'
 
 
 
 $DeployParameters = @{
-  "Name"                       = "ACLXRALAB_$(get-date -UFormat %Y_%m_%d-%I-%M-%S%p)"
+  "Name"                       = "DCLAB_$(get-date -UFormat %Y_%m_%d-%I-%M-%S%p)"
   "ResourceGroupName"          = $RG
   "TemplateFile"               = $templatefile
   "shutdownTimeZone"           = $shutdownTimeZone
@@ -96,4 +96,4 @@ $DeployParameters = @{
 }
 
 
-$deployResults = New-AzResourceGroupDeployment @DeployParameters -Verbose
+$deployResults = New-AzResourceGroupDeployment @DeployParameters

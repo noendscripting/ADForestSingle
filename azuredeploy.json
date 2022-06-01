@@ -15,7 +15,8 @@
       "type": "string"
     },
     "virtualMachineSize": {
-      "type": "string"
+      "type": "string",
+      "defaultValue": "Standard_B2ms"
     },
     "WindowsOSVersion": {
       "type": "string"

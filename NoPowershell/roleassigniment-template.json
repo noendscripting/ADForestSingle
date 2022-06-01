@@ -1,0 +1,36 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters":{
+        "idName": {
+            "type": "string"
+        }
+    },
+    "variables" : {
+        "bootstrapRoleAssignmentId": "[guid(concat(resourceGroup().id, 'networkContributor'))]",
+        "contributorRoleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '4d97b98b-1d4f-4787-a291-c67834d212e7')]"
+    },
+    "resources":[
+
+        {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2018-09-01-preview",
+      "name": "[variables('bootstrapRoleAssignmentId')]",
+      "tags":{
+        "displayName":"AssignPremisions"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('idName'))]"
+      ],
+      "properties": {
+        "roleDefinitionId": "[variables('contributorRoleDefinitionId')]",
+        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('idName')), '2018-11-30').principalId]",
+        //"scope": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkname'))]",
+        "scope" : "/subscriptions/a659182b-c925-4e27-a56d-f40be3f61562",
+        "principalType": "ServicePrincipal"
+      }
+    }
+    ],
+    "outputs":{}
+
+}
