@@ -327,7 +327,7 @@
       "properties": {
         "azPowerShellVersion": "5.0",
         "timeout": "PT30M",
-        "arguments": "[format(' -resourceGroup {0} -vnetName {1} -dcName {2}', resourceGroup().name, parameters('virtualNetworkName'),parameters('VirtualMachinename'))]", // can pass an arguement string, double quotes must be escaped
+        "arguments": "[format(' -resourceGroup {0} -vnetName {1} -dcName {2} -vNetResourceGroupName {3}', resourceGroup().name, parameters('virtualNetworkName'),parameters('VirtualMachinename'), parameters('virtualNetResourceGroupName'))]", // can pass an arguement string, double quotes must be escaped
         "primaryScriptUri": "[concat(parameters('_artifactsLocation'),'/', variables('CustomScriptScriptFolder'), '/set-customdns.ps1', parameters('_artifactsLocationSasToken'))]",
         "cleanupPreference": "Always",
         "retentionInterval": "P1D"

@@ -1,5 +1,6 @@
 param(
     $resourceGroup,
+    $vNetResourceGroupName,
     $vnetName,
     $dcName
 
@@ -11,6 +12,6 @@ $nicConfigurationData.IpConfigurations[0].PrivateIpAllocationMethod = "Static"
 Set-AzNetworkInterface -NetworkInterface $nicConfigurationData
 $dnsArray += $nicConfigurationData.IpConfigurations[0].PrivateIpAddress
 $ErrorActionPreference = 'Stop'
-$vnetData = Get-AzVirtualNetwork -ResourceGroupName $resourceGroup -Name $vnetName
+$vnetData = Get-AzVirtualNetwork -ResourceGroupName $vNetResourceGroupName -Name $vnetName
 $vnetdata.DhcpOptions.DnsServers = $dnsArray
 $vnetData | Set-AzVirtualNetwork
