@@ -14,7 +14,7 @@ Param(
   )
   ]
   [string]$templatefile,
-  [string]$shutdownTimeZone = 'Eastern Standard Time',
+  [string]$timeZone = 'Eastern Standard Time',
   [string]$shutDownTime = '01:00',
   [string]$containerName = "storageartifacts",
   [string]$VirtualMachinename= "DC1",
@@ -75,8 +75,7 @@ $DeployParameters = @{
   "Name"                       = "DCLAB_$(get-date -UFormat %Y_%m_%d-%I-%M-%S%p)"
   "ResourceGroupName"          = $RG
   "TemplateFile"               = $templatefile
-  "shutdownTimeZone"           = $shutdownTimeZone
-  "shutDownTime"               = $shutDownTime
+  "timeZone"           = $timeZone
   "_artifactsLocation"         = $ArtifactLocation
   "_artifactsLocationSasToken" = $artifactSASTokenSecure
   "VirtualMachinename" = $VirtualMachinename
@@ -96,4 +95,4 @@ $DeployParameters = @{
 }
 
 
-$deployResults = New-AzResourceGroupDeployment @DeployParameters
+New-AzResourceGroupDeployment @DeployParameters

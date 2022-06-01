@@ -21,6 +21,9 @@
     "WindowsOSVersion": {
       "type": "string"
     },
+    "timeZone": {
+      "type": "string"
+    },
     "subnetName": {
       "type": "string"
     },
@@ -48,10 +51,6 @@
     "NetBiosDomainname": {
       "type": "string"
     },
-    "shutdownTimeZone": {
-      "type": "string",
-      "defaultValue": "Eastern Standard Time"
-    },
     "addUsers": {
       "type": "bool",
       "defaultValue": true
@@ -59,8 +58,14 @@
     "identityName": {
       "type": "string",
       "defaultValue": "addCustomDNSId"
-    }
+    },
+      "roleAssignimentTemplateURI":{
+    
+    "type" : "string",
+    "defaultValue" : "https://raw.githubusercontent.com/noendscripting/ADForestSingle/master/NoPowershell/roleassigniment-template.json"
+  }
   },
+
 
   "variables": {
     "VnetID": "[resourceId(parameters('virtualNetResourceGroupName'),'Microsoft.Network/virtualNetworks', parameters('virtualNetworkname'))]",
@@ -98,17 +103,22 @@
       "name": "[variables('roleDeploymentName')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2017-05-10",
-      //"dependsOn": [
-      //
-     // ], 
+      "dependsOn": [
+        "[resourceId(resourceGroup().name,'Microsoft.ManagedIdentity/userAssignedIdentities', parameters('identityName'))]"
+      ], 
      "resourceGroup": "[parameters('virtualNetResourceGroupName')]",
       "properties": {
         "mode":"Incremental",
         "templateLink":{
-          "uri": "https://raw.githubusercontent.com/noendscripting/azuredeploy/master/encrypt-extension.json"
+          "uri": "[parameters('roleAssignimentTemplateURI')]"
         },
         "parameters":{
-          "idName":"[parameters('identityName')]"
+          "idName":{
+          "value":"[parameters('identityName')]"
+          },
+          "principalId":{
+            "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('identityName')), '2018-11-30').principalId]"
+          }
         }
       }
     }
@@ -163,7 +173,7 @@
           "adminUsername": "[parameters('AdminUsername')]",
           "adminPassword": "[parameters('AdminPassword')]",
           "windowsConfiguration": {
-            "timeZone": "[parameters('shutdownTimeZone')]",
+            "timeZone": "[parameters('timeZone')]",
             "winRM": {
               "listeners": [
                 {

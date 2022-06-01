@@ -4,6 +4,9 @@
     "parameters":{
         "idName": {
             "type": "string"
+        },
+        "principalId": {
+            "type": "string"
         }
     },
     "variables" : {
@@ -19,12 +22,10 @@
       "tags":{
         "displayName":"AssignPremisions"
       },
-      "dependsOn": [
-        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('idName'))]"
-      ],
       "properties": {
         "roleDefinitionId": "[variables('contributorRoleDefinitionId')]",
-        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('idName')), '2018-11-30').principalId]",
+        //"principalId": "[reference(resourceId('DomainControlerTest-RG','Microsoft.Authorization/roleAssignments', parameters('idName')), '2018-11-30').principalId]",
+        "pricipalId": "[parameters('principalId')]",
         //"scope": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkname'))]",
         "scope" : "/subscriptions/a659182b-c925-4e27-a56d-f40be3f61562",
         "principalType": "ServicePrincipal"
