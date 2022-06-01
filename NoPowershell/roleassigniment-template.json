@@ -7,10 +7,13 @@
         },
         "roleDefenitionId": {
             "type": "string"
+        },
+        "roleName" : {
+            "type": "string"
         }
     },
     "variables" : {
-        "bootstrapRoleAssignmentId": "[guid(concat(resourceGroup().id, 'networkContributor'))]",
+        "bootstrapRoleAssignmentId": "[guid(concat(resourceGroup().id, parameters('roleName')))]",
         "builitInRoleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('roleDefenitionId'))]"
     },
     "resources":[

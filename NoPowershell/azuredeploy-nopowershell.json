@@ -1,10 +1,10 @@
 ﻿{
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
   "parameters": {
     "VirtualMachinename": {
       "type": "string"
-      },
+    },
     "AdminUserName": {
       "type": "string"
     },
@@ -59,11 +59,11 @@
       "type": "string",
       "defaultValue": "addCustomDNSId"
     },
-      "roleAssignimentTemplateURI":{
-    
-    "type" : "string",
-    "defaultValue" : "https://raw.githubusercontent.com/noendscripting/ADForestSingle/master/NoPowershell/roleassigniment-template.json"
-  }
+    "roleAssignimentTemplateURI": {
+
+      "type": "string",
+      "defaultValue": "https://raw.githubusercontent.com/noendscripting/ADForestSingle/master/NoPowershell/roleassigniment-template.json"
+    }
   },
 
 
@@ -74,22 +74,22 @@
     "ImageOffer": "WindowsServer",
     "DscConfigurationScript": "DCConfig.ps1",
     "DscConfigurationFunction": "DcConfig",
-    "DscArchiveFileUri":"[concat(parameters('_artifactsLocation'),'/',parameters('DSCArchiveFileName'))]",   
+    "DscArchiveFileUri": "[concat(parameters('_artifactsLocation'),'/',parameters('DSCArchiveFileName'))]",
     "roleDeploymentName": "[concat(deployment().name,'RoleAssigniment')]",
-    "CustomDCScriptScriptFileName":"CustomScript.ps1",
+    "CustomDCScriptScriptFileName": "CustomScript.ps1",
     "CustomScriptScriptFolder": "CustomScripts",
     "CustomScriptURis": [
-            "[concat(parameters('_artifactsLocation'),'/', variables('CustomScriptScriptFolder'), '/', variables('CustomDCScriptScriptFileName'), parameters('_artifactsLocationSasToken'))]",
-            "[concat(parameters('_artifactsLocation'),'/', variables('CustomScriptScriptFolder'), '/Users.csv', parameters('_artifactsLocationSasToken'))]",
-            "[concat(parameters('_artifactsLocation'),'/', variables('CustomScriptScriptFolder'), '/Groups.csv', parameters('_artifactsLocationSasToken'))]",
-            "[concat(parameters('_artifactsLocation'),'/', variables('CustomScriptScriptFolder'), '/OUs.csv', parameters('_artifactsLocationSasToken'))]",
-            "[concat(parameters('_artifactsLocation'),'/', variables('CustomScriptScriptFolder'), '/Members.csv', parameters('_artifactsLocationSasToken'))]"
-          ]
+      "[concat(parameters('_artifactsLocation'),'/', variables('CustomScriptScriptFolder'), '/', variables('CustomDCScriptScriptFileName'), parameters('_artifactsLocationSasToken'))]",
+      "[concat(parameters('_artifactsLocation'),'/', variables('CustomScriptScriptFolder'), '/Users.csv', parameters('_artifactsLocationSasToken'))]",
+      "[concat(parameters('_artifactsLocation'),'/', variables('CustomScriptScriptFolder'), '/Groups.csv', parameters('_artifactsLocationSasToken'))]",
+      "[concat(parameters('_artifactsLocation'),'/', variables('CustomScriptScriptFolder'), '/OUs.csv', parameters('_artifactsLocationSasToken'))]",
+      "[concat(parameters('_artifactsLocation'),'/', variables('CustomScriptScriptFolder'), '/Members.csv', parameters('_artifactsLocationSasToken'))]"
+    ]
 
   },
   "resources": [
     // Create Managed Identity
-      {
+    {
       "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
       "apiVersion": "2018-11-30",
       "name": "[parameters('identityName')]",
@@ -105,24 +105,26 @@
       "apiVersion": "2017-05-10",
       "dependsOn": [
         "[resourceId(resourceGroup().name,'Microsoft.ManagedIdentity/userAssignedIdentities', parameters('identityName'))]"
-      ], 
-     "resourceGroup": "[resourceGroup().name]",
+      ],
+      "resourceGroup": "[parameters('virtualNetResourceGroupName')]",
       "properties": {
-        "mode":"Incremental",
-        "templateLink":{
+        "mode": "Incremental",
+        "templateLink": {
           "uri": "[parameters('roleAssignimentTemplateURI')]"
         },
-        "parameters":{
-          "roleDefenitionId":{
-          "value":"4d97b98b-1d4f-4787-a291-c67834d212e7"
+        "parameters": {
+          "roleDefenitionId": {
+            "value": "4d97b98b-1d4f-4787-a291-c67834d212e7"
           },
-          "principalId":{
+          "principalId": {
             "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('identityName')), '2018-11-30').principalId]"
+          },
+          "roleName": {
+            "value": "Network Contributor"
           }
         }
       }
-    }
-    ,
+    },
     //Assign Virtual Machine Contributor Role to Managed Identity
     {
       "name": "[concat(variables('roleDeploymentName'),'DCRG')]",
@@ -130,24 +132,26 @@
       "apiVersion": "2017-05-10",
       "dependsOn": [
         "[resourceId(resourceGroup().name,'Microsoft.ManagedIdentity/userAssignedIdentities', parameters('identityName'))]"
-      ], 
-     "resourceGroup": "[parameters('virtualNetResourceGroupName')]",
+      ],
+      "resourceGroup": "[resourceGroup().name]",
       "properties": {
-        "mode":"Incremental",
-        "templateLink":{
+        "mode": "Incremental",
+        "templateLink": {
           "uri": "[parameters('roleAssignimentTemplateURI')]"
         },
-        "parameters":{
-          "roleDefenitionId":{
-          "value":"9980e02c-c2be-4d73-94e8-173b1dc7cf3c"
+        "parameters": {
+          "roleDefenitionId": {
+            "value": "9980e02c-c2be-4d73-94e8-173b1dc7cf3c"
           },
-          "principalId":{
+          "principalId": {
             "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('identityName')), '2018-11-30').principalId]"
+          },
+          "roleName": {
+            "value": "Virtual Machine Contributor"
           }
         }
       }
-    }
-    ,
+    },
     //DC NIC
     {
       "comments": "# DC NIC",
@@ -175,8 +179,8 @@
         ]
       }
     },
-    
-     // DC VM - VM promoted as Domain Controller
+
+    // DC VM - VM promoted as Domain Controller
     {
       "comments": "# DC VM",
       "name": "[parameters('VirtualMachinename')]",
@@ -227,62 +231,60 @@
             }
           ]
         }
+      }
+    },
+    {
+      "name": "[concat(parameters('VirtualMachinename'),'/',parameters('NetBiosDomainname'),'-DSC-ForestBuild')]",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "apiVersion": "2019-03-01",
+
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "DisplayName": "DC-DCS"
       },
-      "resources": [
-      ]
-        },
-        {
-          "name": "[concat(parameters('VirtualMachinename'),'/',parameters('NetBiosDomainname'),'-DSC-ForestBuild')]",
-          "type": "Microsoft.Compute/virtualMachines/extensions",
-          "apiVersion": "2019-03-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.Compute/virtualMachines',parameters('VirtualMachinename'))]"
+      ],
+      "properties": {
+        "publisher": "Microsoft.Powershell",
+        "type": "DSC",
+        "typeHandlerVersion": "2.26",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "wmfVersion": "latest",
 
-          "location": "[resourceGroup().location]",
-          "tags": {
-            "DisplayName": "DC-DCS"
+          "configuration": {
+            "script": "[variables('DscConfigurationScript')]",
+            "url": "[variables('DscArchiveFileUri')]",
+            "function": "[variables('DscConfigurationFunction')]"
+
           },
-          "dependsOn": [
-            "[resourceId('Microsoft.Compute/virtualMachines',parameters('VirtualMachinename'))]"
-          ],
-          "properties": {
-            "publisher": "Microsoft.Powershell",
-            "type": "DSC",
-            "typeHandlerVersion": "2.26",
-            "autoUpgradeMinorVersion": true,
-            "settings": {
-              "wmfVersion": "latest",
+          "configurationArguments": {
+            "domainName": "[parameters('domainName')]",
+            "NetBiosDomainname": "[parameters('NetBiosDomainname')]"
 
-              "configuration": {
-                "script": "[variables('DscConfigurationScript')]",
-                "url": "[variables('DscArchiveFileUri')]",
-                "function": "[variables('DscConfigurationFunction')]"
-
-              },
-              "configurationArguments": {
-                "domainName": "[parameters('domainName')]",
-                "NetBiosDomainname": "[parameters('NetBiosDomainname')]"
-
-              }
-            },
-            "protectedSettings": {
-              "configurationUrlSasToken": "[parameters('_artifactsLocationSasToken')]",
-              "configurationArguments": {
-                "DomainAdminCredentials": {
-                  "UserName": "[parameters('AdminUserName')]",
-                  "Password": "[parameters('AdminPassword')]"
-                }
-              }
+          }
+        },
+        "protectedSettings": {
+          "configurationUrlSasToken": "[parameters('_artifactsLocationSasToken')]",
+          "configurationArguments": {
+            "DomainAdminCredentials": {
+              "UserName": "[parameters('AdminUserName')]",
+              "Password": "[parameters('AdminPassword')]"
             }
           }
-           
-      },
+        }
+      }
 
-        // DC Import Custom Script
+    },
+
+    // DC Import Custom Script
     {
       "name": "[concat(parameters('VirtualMachinename'),'/',parameters('NetBiosDomainname'),'-DC-ImportScript')]",
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "location": "[resourceGroup().location]",
       "apiVersion": "2016-03-30",
-      "condition":"[equals(parameters('addUsers'),true())]",
+      "condition": "[equals(parameters('addUsers'),true())]",
       "dependsOn": [
         "[resourceId('Microsoft.Compute/virtualMachines/extensions',parameters('VirtualMachinename'),concat(parameters('NetBiosDomainname'),'-DSC-ForestBuild'))]"
       ],
@@ -301,7 +303,7 @@
           "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File ', variables('CustomScriptScriptFolder'), '/', variables('CustomDCScriptScriptFileName'))]"
         }
       }
-      
+
     },
     //Setting DNS on the VNET
     {
@@ -320,17 +322,17 @@
           "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('identityName'))]": {}
         }
       },
-      
+
       "kind": "AzurePowerShell",
       "properties": {
         "azPowerShellVersion": "5.0",
         "timeout": "PT30M",
         "arguments": "[format(' -resourceGroup {0} -vnetName {1} -dcName {2}', resourceGroup().name, parameters('virtualNetworkName'),parameters('VirtualMachinename'))]", // can pass an arguement string, double quotes must be escaped
-        "primaryScriptUri":"[concat(parameters('_artifactsLocation'),'/', variables('CustomScriptScriptFolder'), '/set-customdns.ps1', parameters('_artifactsLocationSasToken'))]",
+        "primaryScriptUri": "[concat(parameters('_artifactsLocation'),'/', variables('CustomScriptScriptFolder'), '/set-customdns.ps1', parameters('_artifactsLocationSasToken'))]",
         "cleanupPreference": "Always",
         "retentionInterval": "P1D"
       }
-    }/*,
+    } /*,
     //Shutdown Schedule
     {
       "apiVersion": "2018-09-15",
@@ -361,10 +363,10 @@
 
 
     }*/
-     
-    
+
+
 
   ],
-    "outputs": {
-    }
+  "outputs": {
+  }
 }
