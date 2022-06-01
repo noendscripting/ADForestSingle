@@ -176,7 +176,7 @@
       }
     },
     
-     // DC VM - VM promoted as Domain Controller, Enterprise Root CA is installed
+     // DC VM - VM promoted as Domain Controller
     {
       "comments": "# DC VM",
       "name": "[parameters('VirtualMachinename')]",
@@ -310,7 +310,8 @@
       "name": "CustomDNS",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[concat('Microsoft.Resources/deployments/',variables('roleDeploymentName'))]",
+        "[concat('Microsoft.Resources/deployments/',variables('roleDeploymentName'),'networkRG')]",
+        "[concat('Microsoft.Resources/deployments/',variables('roleDeploymentName'),'DCRG')]",
         "[resourceId('Microsoft.Compute/virtualMachines/extensions',parameters('VirtualMachinename'),Concat(parameters('NetBiosDomainname'),'-DC-ImportScript'))]"
       ],
       "identity": {
