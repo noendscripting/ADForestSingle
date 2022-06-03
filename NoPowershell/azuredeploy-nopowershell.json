@@ -30,7 +30,7 @@
     "virtualNetResourceGroupName": {
       "type": "string"
     },
-    "_artifactsLocation": {
+    /*"_artifactsLocation": {
       "type": "string",
       "metadata": {
         "description": "Auto-generated container in staging storage account to receive post-build staging folder upload"
@@ -41,7 +41,7 @@
       "metadata": {
         "description": "Auto-generated token to access _artifactsLocation"
       }
-    },
+    },*/
     "DSCArchiveFileName": {
       "type": "string"
     },
@@ -66,11 +66,11 @@
     },
     "DscArchiveFileUri":{
       "type": "string",
-      "defaultValue": "https://github.com/noendscripting/ADForestSingle/blob/f35014cbddd4dfac2b86906290b861251e7bb49f/DSC/DCConfig.zip"
+      "defaultValue": "https://github.com/noendscripting/ADForestSingle/raw/master/DSC/DCConfig.zip"
     },
     "CustomScriptUri" : {
       "type": "string",
-      "defaultValue": "https://raw.githubusercontent.com/noendscripting/ADForestSingle/master/CustomScripts"
+      "defaultValue": "https://raw.githubusercontent.com/noendscripting/ADForestSingle/master"
     }
     
   },
@@ -83,7 +83,7 @@
     "ImageOffer": "WindowsServer",
     "DscConfigurationScript": "DCConfig.ps1",
     "DscConfigurationFunction": "DcConfig",
-    "DscArchiveFileUri": "[concat(parameters('_artifactsLocation'),'/',parameters('DSCArchiveFileName'))]",
+    //"DscArchiveFileUri": "[concat(parameters('_artifactsLocation'),'/',parameters('DSCArchiveFileName'))]",
     "roleDeploymentName": "[concat(deployment().name,'RoleAssigniment')]",
     "CustomDCScriptScriptFileName": "CustomScript.ps1",
     "CustomScriptScriptFolder": "CustomScripts",
@@ -275,7 +275,7 @@
           }
         },
         "protectedSettings": {
-          "configurationUrlSasToken": "[parameters('_artifactsLocationSasToken')]",
+        //  "configurationUrlSasToken": "[parameters('_artifactsLocationSasToken')]",
           "configurationArguments": {
             "DomainAdminCredentials": {
               "UserName": "[parameters('AdminUserName')]",
