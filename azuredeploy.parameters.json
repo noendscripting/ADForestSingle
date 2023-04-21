@@ -6,10 +6,10 @@
       "value":"DC1"
     },
     "AdminUserName": {
-      "value": "mtadmin"
+      "value": "vadmin"
     },
     "AdminPassword": {
-      "value": "Test@2017"
+      "value": "Test@2016"
     },
     "VirtualNetworkName": {
       "value": "VNET-LAB"

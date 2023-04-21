@@ -19,8 +19,8 @@ Param(
   [string]$containerName = "storageartifacts",
   [string]$VirtualMachinename= "DC1",
   [string]$WindowsOSVersion = "2016-Datacenter",
-  [string]$AdminUserName = "mtadmin",
-  [string]$AdminPassword = "Test@2017",
+  [string]$AdminUserName = "vadmin",
+  [string]$AdminPassword = "Test@2016",
   [string]$VirtualNetworkName ,
   [string]$virtualMachineSize= 'Standard_B2s',
   [string]$subnetName ,
@@ -75,7 +75,7 @@ $DeployParameters = @{
   "Name"                       = "DCLAB_$(get-date -UFormat %Y_%m_%d-%I-%M-%S%p)"
   "ResourceGroupName"          = $RG
   "TemplateFile"               = $templatefile
-  "timeZone"           = $timeZone
+  "shutdownTimeZone"           = $timeZone
   "_artifactsLocation"         = $ArtifactLocation
   "_artifactsLocationSasToken" = $artifactSASTokenSecure
   "VirtualMachinename" = $VirtualMachinename
