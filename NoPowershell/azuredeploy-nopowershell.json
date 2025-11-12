@@ -114,53 +114,7 @@
         "displayName": "DNSconfigID"
       }
     },
-    //Create Storage Account
-    {
-      "type": "Microsoft.Storage/storageAccounts",
-      "apiVersion": "2021-09-01",
-      "name": "[parameters('storageAccountName')]",
-      "location": "[resourceGroup().location]",
-      "tags": {
-        "displayName": "AD Artifacts Storage"
-      },
-      "sku": {
-        "name": "Standard_LRS"
-      },
-      "kind": "StorageV2",
-      "properties": {
-        "accessTier": "Hot",
-        "supportsHttpsTrafficOnly": true,
-        "minimumTlsVersion": "TLS1_2"
-      }
-    },
-    //Assign Storage Blob Data Owner Role to Managed Identity on Storage Account
-    {
-      "name": "[concat(variables('roleDeploymentName'),'StorageRG')]",
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2017-05-10",
-      "dependsOn": [
-        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('identityName'))]",
-        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
-      ],
-      "resourceGroup": "[resourceGroup().name]",
-      "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[parameters('roleAssignimentTemplateURI')]"
-        },
-        "parameters": {
-          "roleDefenitionId": {
-            "value": "b7e6dc6d-f1e8-4753-8033-0f276bb0955b"
-          },
-          "principalId": {
-            "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('identityName')), '2018-11-30').principalId]"
-          },
-          "roleName": {
-            "value": "Storage Blob Data Owner"
-          }
-        }
-      }
-    },
+    
     //Assign Network Contributor Role to Managed Identity
     {
       "name": "[concat(variables('roleDeploymentName'),'networkRG')]",
@@ -367,40 +321,8 @@
         }
       }
 
-    },
-    //Setting DNS on the VNET
-    {
-      "type": "Microsoft.Resources/deploymentScripts",
-      "apiVersion": "2023-08-01",
-      "name": "CustomDNS",
-      "location": "[resourceGroup().location]",
-      "dependsOn": [
-        "[concat('Microsoft.Resources/deployments/',variables('roleDeploymentName'),'networkRG')]",
-        "[concat('Microsoft.Resources/deployments/',variables('roleDeploymentName'),'DCRG')]",
-        "[concat('Microsoft.Resources/deployments/',variables('roleDeploymentName'),'StorageRG')]",
-        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
-        "[resourceId('Microsoft.Compute/virtualMachines/extensions',parameters('VirtualMachinename'),Concat(parameters('NetBiosDomainname'),'-DC-ImportScript'))]"
-      ],
-      "identity": {
-        "type": "UserAssigned",
-        "userAssignedIdentities": {
-          "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('identityName'))]": {}
-        }
-      },
-
-      "kind": "AzurePowerShell",
-      "properties": {
-        "azPowerShellVersion": "14.0",
-        "timeout": "PT30M",
-        "arguments": "[format(' -resourceGroup {0} -vnetName {1} -dcName {2} -vNetResourceGroupName {3}', resourceGroup().name, parameters('virtualNetworkName'),parameters('VirtualMachinename'), parameters('virtualNetResourceGroupName'))]", // can pass an arguement string, double quotes must be escaped
-        "primaryScriptUri": "[concat(parameters('CustomScriptUri'),'/', variables('CustomScriptScriptFolder'), '/set-customdns.ps1')]",
-        "storageAccountSettings": {
-          "storageAccountName": "[parameters('storageAccountName')]"
-        },
-        "cleanupPreference": "Always",
-        "retentionInterval": "P1D"
-      }
-    } 
+    }
+   
     
 
 
