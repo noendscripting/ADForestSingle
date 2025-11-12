@@ -70,7 +70,7 @@
     },
     "CustomScriptUri" : {
       "type": "string",
-      "defaultValue": "https://raw.githubusercontent.com/noendscripting/ADForestSingle/raw/master/CustomScripts"
+      "defaultValue": "https://raw.githubusercontent.com/noendscripting/ADForestSingle/raw/master"
     }
     
   },
@@ -317,7 +317,7 @@
     //Setting DNS on the VNET
     {
       "type": "Microsoft.Resources/deploymentScripts",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2023-08-01",
       "name": "CustomDNS",
       "location": "[resourceGroup().location]",
       "dependsOn": [
@@ -334,7 +334,7 @@
 
       "kind": "AzurePowerShell",
       "properties": {
-        "azPowerShellVersion": "5.0",
+        "azPowerShellVersion": "14.0",
         "timeout": "PT30M",
         "arguments": "[format(' -resourceGroup {0} -vnetName {1} -dcName {2} -vNetResourceGroupName {3}', resourceGroup().name, parameters('virtualNetworkName'),parameters('VirtualMachinename'), parameters('virtualNetResourceGroupName'))]", // can pass an arguement string, double quotes must be escaped
         "primaryScriptUri": "[concat(parameters('CustomScriptUri'),'/', variables('CustomScriptScriptFolder'), '/set-customdns.ps1')]",
