@@ -70,7 +70,7 @@
     },
     "CustomScriptUri" : {
       "type": "string",
-      "defaultValue": "https://github.com/noendscripting/ADForestSingle/blob/master/CustomScripts"
+      "defaultValue": "https://raw.githubusercontent.com/noendscripting/ADForestSingle/raw/master/CustomScripts"
     }
     
   },
