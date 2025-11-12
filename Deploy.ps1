@@ -1,7 +1,7 @@
 [CmdletBinding()]
   
 Param(
-  [string]$region = 'eastus',
+  [string]$region = 'centralus',
   [Parameter(
     Mandatory = $true,
     HelpMessage = "Enter name of the Resource Group where lab is going to be deployed'nIf you enter existing name contents of resoucre group may be overwritten."
@@ -18,7 +18,7 @@ Param(
   [string]$shutDownTime = '01:00',
   [string]$containerName = "storageartifacts",
   [string]$VirtualMachinename= "DC1",
-  [string]$WindowsOSVersion = "2016-Datacenter",
+  [string]$WindowsOSVersion = "2022-Datacenter",
   [string]$AdminUserName = "vadmin",
   [string]$AdminPassword = "Test@2016",
   [string]$VirtualNetworkName ,
@@ -30,25 +30,34 @@ Param(
   [bool]$addUsers = $true
 
 )
-
+$ErrorActionPreference = 'Stop'
 Write-Host "Creating Resource Group $($RG)"
 New-AzResourceGroup -Name $RG -Location $region -Force
 $randomprefix = get-random -Minimum 1000 -Maximum 10000000
 Write-Host "Generated random prefix $($randomprefix)"
+#get subnet resoucre id
+$subnetid = ((get-azvirtualnetwork).subnets | where-object {$_.name -eq $subnetName}).id
+#current public IP
+$currentPublicIP = (Invoke-WebRequest https://api.ipify.org -ErrorAction SilentlyContinue -ErrorVariable errorData ).Content
 #create storage account
 $storageAccountName = 'adforest' + $randomprefix
+#$storageAccountName = 'adforest6643543'
 Write-Host "Creating storage account name $($storageAccountName)"
-$storageAccount = New-AzStorageAccount -ResourceGroupName $RG -Name $storageAccountName -Location $region -type Standard_LRS
+$storageAccount = New-AzStorageAccount -ResourceGroupName $RG -Name $storageAccountName -Location $region -type Standard_LRS -NetworkRuleSet (@{Bypass="Logging,Metrics";ipRules=(@{IPAddressOrRange="$($currentPublicIP)";Action="allow"});VirtualNetworkRules=(@{VirtualNetworkResourceId=$subnetid;Action='Allow'});defaultAction="Deny"})
+#$storageAccount= Get-AzStorageAccount -ResourceGroupName $RG -Name 'adforest6643543'
+
+
 
 
 #create container and generate SAS tokens to copy files from source to newly created storage account
-Write-Host "Creating container $($containerName) for artifact data"
-New-AzStorageContainer -Name $containerName -Context $storageAccount.context  | Out-Null
+#Write-Host "Creating container $($containerName) for artifact data"
+#New-AzStorageContainer -Name $containerName -Context $storageAccount.context  | Out-Null
 $destcontext = $storageAccount.context
 Write-Host "Obtaining SAS token for arctifact container $($containerName)"
 $destSASToken = New-AzStorageContainerSASToken -Context $destcontext -ExpiryTime (get-date).AddHours(4).ToUniversalTime() -Name $containerName -Permission racwdl
 $artifactSASTokenSecure = ConvertTo-SecureString -String $destSASToken -AsPlainText -Force 
 $artifactLocation = "$($destcontext.BlobEndPoint)$($containerName)"
+Write-Verbose "Artifact Location $($artifactLocation)"
 Write-Verbose "Destination SAA $($destSAStoken)"
 #endregion
 #region publishing DSC package data
