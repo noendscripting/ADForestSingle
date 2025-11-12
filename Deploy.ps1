@@ -43,7 +43,7 @@ $currentPublicIP = (Invoke-WebRequest https://api.ipify.org -ErrorAction Silentl
 $storageAccountName = 'adforest' + $randomprefix
 #$storageAccountName = 'adforest6643543'
 Write-Host "Creating storage account name $($storageAccountName)"
-$storageAccount = New-AzStorageAccount -ResourceGroupName $RG -Name $storageAccountName -Location $region -type Standard_LRS -NetworkRuleSet (@{Bypass="Logging,Metrics";ipRules=(@{IPAddressOrRange="$($currentPublicIP)";Action="allow"});VirtualNetworkRules=(@{VirtualNetworkResourceId=$subnetid;Action='Allow'});defaultAction="Deny"})
+$storageAccount = New-AzStorageAccount -ResourceGroupName $RG -Name $storageAccountName -Location $region -type Standard_LRS -NetworkRuleSet (@{Bypass="Logging,Metrics";ipRules=(@{IPAddressOrRange="$($currentPublicIP)";Action="allow"});VirtualNetworkRules=(@{VirtualNetworkResourceId=$subnetid;Action='Allow'});defaultAction="Deny"}) -AllowBlobPublicAccess $false -AllowSharedKeyAccess $true
 #$storageAccount= Get-AzStorageAccount -ResourceGroupName $RG -Name 'adforest6643543'
 
 

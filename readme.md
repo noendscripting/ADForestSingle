@@ -15,7 +15,7 @@ The `Deploy.ps1` script automates the deployment of an Active Directory forest b
 - [Clone of repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) in your local directory
 - Azure PowerShell module installed (`Install-Module -Name Az`)
 - Azure subscription with appropriate permissions
-- Existing Virtual Network with a subnet
+- Existing Virtual Network with a subnet and Azure.Storage ServiceEndpoints configured
 - Authenticated Azure session (`Connect-AzAccount`)
 
 
