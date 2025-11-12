@@ -98,69 +98,69 @@
   },
   "resources": [
     // Create Managed Identity
-    {
-      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
-      "apiVersion": "2018-11-30",
-      "name": "[parameters('identityName')]",
-      "location": "[resourceGroup().location]",
-      "tags": {
-        "displayName": "DNSconfigID"
-      }
-    },
+    //{
+    //  "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+    //  "apiVersion": "2018-11-30",
+    //  "name": "[parameters('identityName')]",
+    //  "location": "[resourceGroup().location]",
+    //  "tags": {
+    //    "displayName": "DNSconfigID"
+    //  }
+    //},
     //Assign Network Contributor Role to Managed Identity
-    {
-      "name": "[concat(variables('roleDeploymentName'),'networkRG')]",
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2017-05-10",
-      "dependsOn": [
-        "[resourceId(resourceGroup().name,'Microsoft.ManagedIdentity/userAssignedIdentities', parameters('identityName'))]"
-      ],
-      "resourceGroup": "[parameters('virtualNetResourceGroupName')]",
-      "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[parameters('roleAssignimentTemplateURI')]"
-        },
-        "parameters": {
-          "roleDefenitionId": {
-            "value": "4d97b98b-1d4f-4787-a291-c67834d212e7"
-          },
-          "principalId": {
-            "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('identityName')), '2018-11-30').principalId]"
-          },
-          "roleName": {
-            "value": "Network Contributor"
-          }
-        }
-      }
+    //{
+    //  "name": "[concat(variables('roleDeploymentName'),'networkRG')]",
+    //  "type": "Microsoft.Resources/deployments",
+    //  "apiVersion": "2017-05-10",
+    //  "dependsOn": [
+    //    "[resourceId(resourceGroup().name,'Microsoft.ManagedIdentity/userAssignedIdentities', parameters('identityName'))]"
+    //  ],
+    //  "resourceGroup": "[parameters('virtualNetResourceGroupName')]",
+    //  "properties": {
+    //    "mode": "Incremental",
+    //    "templateLink": {
+    //      "uri": "[parameters('roleAssignimentTemplateURI')]"
+    //    },
+    //    "parameters": {
+    //      "roleDefenitionId": {
+    //        "value": "4d97b98b-1d4f-4787-a291-c67834d212e7"
+    //      },
+    //      "principalId": {
+    //        "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('identityName')), '2018-11-30').principalId]"
+    //      },
+    //      "roleName": {
+    //       "value": "Network Contributor"
+    //      }
+    //    }
+    //  }
     },
     //Assign Virtual Machine Contributor Role to Managed Identity
-    {
-      "name": "[concat(variables('roleDeploymentName'),'DCRG')]",
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2017-05-10",
-      "dependsOn": [
-        "[resourceId(resourceGroup().name,'Microsoft.ManagedIdentity/userAssignedIdentities', parameters('identityName'))]"
-      ],
-      "resourceGroup": "[resourceGroup().name]",
-      "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[parameters('roleAssignimentTemplateURI')]"
+    //{
+    //  "name": "[concat(variables('roleDeploymentName'),'DCRG')]",
+    //  "type": "Microsoft.Resources/deployments",
+    //  "apiVersion": "2017-05-10",
+    //  "dependsOn": [
+    //    "[resourceId(resourceGroup().name,'Microsoft.ManagedIdentity/userAssignedIdentities', parameters('identityName'))]"
+    //  ],
+    //  "resourceGroup": "[resourceGroup().name]",
+    //  "properties": {
+    //    "mode": "Incremental",
+    //    "templateLink": {
+    //      "uri": "[parameters('roleAssignimentTemplateURI')]"
         },
-        "parameters": {
-          "roleDefenitionId": {
-            "value": "9980e02c-c2be-4d73-94e8-173b1dc7cf3c"
+    //    "parameters": {
+    //      "roleDefenitionId": {
+    //        "value": "9980e02c-c2be-4d73-94e8-173b1dc7cf3c"
           },
-          "principalId": {
-            "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('identityName')), '2018-11-30').principalId]"
-          },
-          "roleName": {
-            "value": "Virtual Machine Contributor"
-          }
-        }
-      }
-    },
+    //      "principalId": {
+    //        "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('identityName')), '2018-11-30').principalId]"
+    //      },
+    //      "roleName": {
+    //        "value": "Virtual Machine Contributor"
+    //      }
+    //    }
+    //  }
+    //},
     //DC NIC
     {
       "comments": "# DC NIC",
@@ -315,33 +315,33 @@
 
     },
     //Setting DNS on the VNET
-    {
-      "type": "Microsoft.Resources/deploymentScripts",
-      "apiVersion": "2023-08-01",
-      "name": "CustomDNS",
-      "location": "[resourceGroup().location]",
-      "dependsOn": [
-        "[concat('Microsoft.Resources/deployments/',variables('roleDeploymentName'),'networkRG')]",
-        "[concat('Microsoft.Resources/deployments/',variables('roleDeploymentName'),'DCRG')]",
-        "[resourceId('Microsoft.Compute/virtualMachines/extensions',parameters('VirtualMachinename'),Concat(parameters('NetBiosDomainname'),'-DC-ImportScript'))]"
-      ],
-      "identity": {
-        "type": "UserAssigned",
-        "userAssignedIdentities": {
-          "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('identityName'))]": {}
-        }
-      },
+    //{
+    //  "type": "Microsoft.Resources/deploymentScripts",
+    //  "apiVersion": "2023-08-01",
+    //  "name": "CustomDNS",
+    //  "location": "[resourceGroup().location]",
+    //  "dependsOn": [
+    //    "[concat('Microsoft.Resources/deployments/',variables('roleDeploymentName'),'networkRG')]",
+    //    "[concat('Microsoft.Resources/deployments/',variables('roleDeploymentName'),'DCRG')]",
+    //    "[resourceId('Microsoft.Compute/virtualMachines/extensions',parameters('VirtualMachinename'),Concat(parameters('NetBiosDomainname'),'-DC-ImportScript'))]"
+    //  ],
+    //  "identity": {
+    //    "type": "UserAssigned",
+    //    "userAssignedIdentities": {
+    //      "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('identityName'))]": {}
+    //    }
+    //  },
 
-      "kind": "AzurePowerShell",
-      "properties": {
-        "azPowerShellVersion": "14.0",
-        "timeout": "PT30M",
-        "arguments": "[format(' -resourceGroup {0} -vnetName {1} -dcName {2} -vNetResourceGroupName {3}', resourceGroup().name, parameters('virtualNetworkName'),parameters('VirtualMachinename'), parameters('virtualNetResourceGroupName'))]", // can pass an arguement string, double quotes must be escaped
-        "primaryScriptUri": "[concat(parameters('CustomScriptUri'),'/', variables('CustomScriptScriptFolder'), '/set-customdns.ps1')]",
-        "cleanupPreference": "Always",
-        "retentionInterval": "P1D"
-      }
-    } 
+    //  "kind": "AzurePowerShell",
+    //  "properties": {
+    //    "azPowerShellVersion": "14.0",
+    //    "timeout": "PT30M",
+    //    "arguments": "[format(' -resourceGroup {0} -vnetName {1} -dcName {2} -vNetResourceGroupName {3}', resourceGroup().name, parameters('virtualNetworkName'),parameters('VirtualMachinename'), parameters('virtualNetResourceGroupName'))]", // can pass an arguement string, double quotes must be escaped
+    //    "primaryScriptUri": "[concat(parameters('CustomScriptUri'),'/', variables('CustomScriptScriptFolder'), '/set-customdns.ps1')]",
+    //    "cleanupPreference": "Always",
+    //    "retentionInterval": "P1D"
+    //  }
+    //} 
     
 
 
