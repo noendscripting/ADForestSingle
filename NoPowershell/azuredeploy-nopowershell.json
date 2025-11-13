@@ -276,7 +276,7 @@
           "fileUris": "[variables('CustomScriptURis')]"
         },
         "protectedSettings": {
-          "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File ', variables('CustomScriptScriptFolder'), '/', variables('CustomDCScriptScriptFileName'))]"
+          "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File ', variables('CustomDCScriptScriptFileName'))]"
         }
       }
 
